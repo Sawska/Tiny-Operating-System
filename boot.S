@@ -1,8 +1,23 @@
 .section .text.boot
 .global _start
 
+.extern kernel_main
+.extern _sbss
+.extern _ebss
+.extern _stack_top
+
 _start:
-    ldr,sp = stack_top
+    ldr sp, =_stack_top
+
+    // Clear .bss
+    ldr r0, =_sbss
+    ldr r1, =_ebss
+zero_bss:
+    cmp r0, r1
+    itt lt
+    strlt r2, [r0], #4
+    blt zero_bss
+
     bl kernel_main
 
 hang:

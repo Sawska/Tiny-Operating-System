@@ -1,12 +1,19 @@
-cmake_minimum_required(VERSION 3.13)
-project(pico_os C ASM)
+CFLAGS = -Wall -nostdlib -ffreestanding -O2 -mcpu=cortex-m0 -mthumb
 
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR cortex-m0plus)
+all: kernel.uf2
 
-set(CMAKE_C_FLAGS "-mcpu=cortex-m0plus -mthumb -nostdlib -ffreestanding")
-set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS}")
+kernel.elf: boot.o kernel.o memory.o
+	arm-none-eabi-ld -T linker.ld -o $@ $^
 
-add_executable(pico_os boot.S kernel.c)
+%.o: %.c
+	arm-none-eabi-gcc $(CFLAGS) -c -o $@ $<
 
-target_link_options(pico_os PRIVATE -T${CMAKE_SOURCE_DIR}/linker.ld)
+boot.o: boot.S
+	arm-none-eabi-gcc $(CFLAGS) -c -o $@ $<
+
+kernel.uf2: kernel.elf
+	arm-none-eabi-objcopy -O binary $< kernel.bin
+	pico-sdk/tools/elf2uf2/elf2uf2 $< $@
+
+clean:
+	rm -f *.o *.elf *.bin *.uf2

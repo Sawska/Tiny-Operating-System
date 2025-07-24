@@ -19,12 +19,20 @@ SECTIONS {
   } > RAM
 
   .bss : {
+    _sbss = .;
     *(.bss*)
     *(COMMON)
+    _ebss = .;
   } > RAM
 
   .stack (NOLOAD) : {
     . = ALIGN(8);
-    _stack_top = . + 0x1000;  /* 4KB stack */
+    _stack_top = . + 0x1000;
   } > RAM
+
+  .vectors : {
+    KEEP(*(.vectors))
+} > RAM
+
 }
+
