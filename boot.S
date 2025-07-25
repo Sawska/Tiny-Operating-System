@@ -9,16 +9,23 @@
 _start:
     ldr sp, =_stack_top
 
-    // Clear .bss
     ldr r0, =_sbss
     ldr r1, =_ebss
 zero_bss:
     cmp r0, r1
     itt lt
-    strlt r2, [r0], #4
+    strlt r2, [r0], 
     blt zero_bss
 
     bl kernel_main
 
 hang:
     b hang
+
+.global enable_irq
+enable_irq:
+    cpsie i
+    bx lr
+    
+.extern SVC_Handler
+.word SVC_Handler
