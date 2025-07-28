@@ -21,7 +21,7 @@ int fs_create(const char* name) {
             return 0;
         }
     }
-    return -1; // No space
+    return -1; 
 }
 
 int fs_write(const char* name, const char* content) {
@@ -35,7 +35,7 @@ int fs_write(const char* name, const char* content) {
             return 0;
         }
     }
-    return -1; // Not found
+    return -1; 
 }
 
 const char* fs_read(const char* name) {

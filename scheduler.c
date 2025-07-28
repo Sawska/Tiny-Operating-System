@@ -16,7 +16,7 @@ void scheduler_init() {
     }
 }
 
-void task_create(void (*entry)(void), int priority) {
+void task_create(void (*entry)(void), int priority, uint32_t caps) {
     if (total_tasks >= MAX_TASKS) return;
 
     uint8_t* stack = (uint8_t*)simple_malloc(STACK_SIZE);
@@ -34,8 +34,10 @@ void task_create(void (*entry)(void), int priority) {
     tasks[total_tasks].stack_base = stack;
     tasks[total_tasks].active = 1;
     tasks[total_tasks].priority = priority;
+    tasks[total_tasks].capabilities = caps; 
     total_tasks++;
 }
+
 
 void scheduler_start() {
     *((volatile uint32_t*)0xE000E014) = 125000 - 1; 
@@ -78,4 +80,9 @@ void SysTick_Handler() {
     if (current_task != -1 && current_task != prev_task) {
         switch_context(&tasks[prev_task].sp, tasks[current_task].sp);
     }
+}
+
+int task_has_capability(uint32_t cap) {
+    if (current_task < 0 || current_task >= total_tasks) return 0;
+    return (tasks[current_task].capabilities & cap) != 0;
 }

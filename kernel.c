@@ -302,6 +302,11 @@ void lcd_spi()  {
 }
 
 void kernel_main(void) {
+
+    log_debug("This is a debug message");
+    log_info("Kernel booted successfully");
+    log_warn("Low memory warning");
+    log_error("Failed to initialize driver");
     gpio_init(25);
     uart_init();
     mailbox_init(&box);
@@ -313,21 +318,21 @@ void kernel_main(void) {
     enable_irq();  
 
 
-    task_create(task1,1);
-    task_create(task2,2);
-    task_create(dht11_task,3);
-    task_create(button_task,4);
-    task_create(hc_sr04_task,5);
-    task_create(led_task,6);
-    task_create(buzzer_task,7);
-    task_create(servo_task,8);
-    task_create(motor_task,9);
-    task_create(hw_servo_task_hardware_pwm,10);
-    task_create(hw_motor_task_hardware_pwm,11);
-    task_create(lcd_example,12);
-    task_create(lcd_spi,13);
-    task_create(sensor_task,14);
-    task_create(logger_task,15);
+    task_create(task1,1,CAP_GPIO);
+    task_create(task2,2,CAP_GPIO);
+    task_create(dht11_task,3,CAP_GPIO);
+    task_create(button_task,4,CAP_GPIO);
+    task_create(hc_sr04_task,5,CAP_GPIO);
+    task_create(led_task,6,CAP_GPIO);
+    task_create(buzzer_task,7,CAP_GPIO);
+    task_create(servo_task,8,CAP_GPIO);
+    task_create(motor_task,9,CAP_GPIO);
+    task_create(hw_servo_task_hardware_pwm,10,CAP_GPIO);
+    task_create(hw_motor_task_hardware_pwm,11,CAP_GPIO);
+    task_create(lcd_example,12,CAP_GPIO);
+    task_create(lcd_spi,13,CAP_GPIO);
+    task_create(sensor_task,14,CAP_GPIO);
+    task_create(logger_task,15,CAP_GPIO);
     scheduler_start();
 }
 
