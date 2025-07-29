@@ -8,6 +8,7 @@
 #include "lcd_i2c.h"
 #include "lcd_spi.h"
 #include "ipc.h"
+#include "log.h"
 
 Mailbox box;
 IPCQueue sensor_to_logger;
@@ -15,13 +16,7 @@ IPCQueue sensor_to_logger;
 
 
 
-void sensor_task() {
-    uint32_t value = 42;
-    while (1) {
-        ipc_send(&sensor_to_logger, value++);
-        for (volatile int i = 0; i < 100000; i++);
-    }
-}
+
 
 void logger_task() {
     uint32_t msg;
@@ -36,9 +31,7 @@ void logger_task() {
 }
 
 
-void delay_cycles(volatile int cycles) {
-    while (cycles--);
-}
+
 
 int dht_read_bit(int pin) {
     while (!gpio_get(pin)); 

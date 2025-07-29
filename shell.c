@@ -2,9 +2,9 @@
 #include "uart.h"
 #include "gpio.h"
 #include "adc.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+
+
+
 
 #define CMD_BUFFER_SIZE 128
 #define MAX_ARGS 8
@@ -20,6 +20,7 @@ typedef struct {
     const char* help;
 } command_t;
 
+// Forward declarations
 static void cmd_help(int argc, char* argv[]);
 static void cmd_led(int argc, char* argv[]);
 static void cmd_adc(int argc, char* argv[]);
@@ -31,14 +32,73 @@ static command_t commands[] = {
     { NULL, NULL, NULL }
 };
 
-static int tokenize(char* str, char* argv[], int max_args) {
+static int my_strcmp(const char* s1, const char* s2) {
+    while (*s1 && *s2) {
+        if (*s1 != *s2) return *s1 - *s2;
+        s1++; s2++;
+    }
+    return *s1 - *s2;
+}
+
+static int my_tokenize(char* str, char* argv[], int max_args) {
     int argc = 0;
-    char* token = strtok(str, " ");
-    while (token && argc < max_args) {
-        argv[argc++] = token;
-        token = strtok(NULL, " ");
+    char* p = str;
+
+    while (*p && argc < max_args) {
+        while (*p == ' ') p++;
+        if (*p == 0) break;
+
+        argv[argc++] = p;
+
+        while (*p && *p != ' ') p++;
+
+        if (*p) {
+            *p = 0;
+            p++;
+        }
     }
     return argc;
+}
+
+
+static int my_atoi(const char* str) {
+    int result = 0;
+    int sign = 1;
+
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    }
+
+    while (*str >= '0' && *str <= '9') {
+        result = result * 10 + (*str - '0');
+        str++;
+    }
+    return sign * result;
+}
+
+
+static int my_itoa(char* buf, unsigned int val) {
+    int i = 0, j, start;
+    if (val == 0) {
+        buf[0] = '0';
+        buf[1] = 0;
+        return 1;
+    }
+
+    while (val > 0 && i < 31) {
+        buf[i++] = '0' + (val % 10);
+        val /= 10;
+    }
+
+    start = 0; 
+    for (j = i - 1; j > start; j--, start++) {
+        char t = buf[start];
+        buf[start] = buf[j];
+        buf[j] = t;
+    }
+    buf[i] = 0;
+    return i;
 }
 
 void shell_init(void) {
@@ -56,12 +116,12 @@ void shell_poll(void) {
                 cmd_buffer[cmd_pos] = 0;
 
                 char* argv[MAX_ARGS];
-                int argc = tokenize(cmd_buffer, argv, MAX_ARGS);
+                int argc = my_tokenize(cmd_buffer, argv, MAX_ARGS);
 
                 if (argc > 0) {
                     int found = 0;
                     for (int i = 0; commands[i].name != NULL; i++) {
-                        if (strcmp(argv[0], commands[i].name) == 0) {
+                        if (my_strcmp(argv[0], commands[i].name) == 0) {
                             commands[i].func(argc, argv);
                             found = 1;
                             break;
@@ -88,8 +148,6 @@ void shell_poll(void) {
     }
 }
 
-
-
 static void cmd_help(int argc, char* argv[]) {
     uart_puts("Available commands:\r\n");
     for (int i = 0; commands[i].name != NULL; i++) {
@@ -106,11 +164,11 @@ static void cmd_led(int argc, char* argv[]) {
         uart_puts("Usage: led on|off\r\n");
         return;
     }
-    if (strcmp(argv[1], "on") == 0) {
-        gpio_set(25, 1); 
+    if (my_strcmp(argv[1], "on") == 0) {
+        gpio_set(25, 1);
         uart_puts("LED turned ON\r\n");
     }
-    else if (strcmp(argv[1], "off") == 0) {
+    else if (my_strcmp(argv[1], "off") == 0) {
         gpio_set(25, 0);
         uart_puts("LED turned OFF\r\n");
     }
@@ -120,17 +178,36 @@ static void cmd_led(int argc, char* argv[]) {
 }
 
 static void cmd_adc(int argc, char* argv[]) {
-    if (argc < 3 || strcmp(argv[1], "read") != 0) {
+    if (argc < 3 || my_strcmp(argv[1], "read") != 0) {
         uart_puts("Usage: adc read <channel>\r\n");
         return;
     }
-    int ch = atoi(argv[2]);
+    int ch = my_atoi(argv[2]);
     if (ch < 0 || ch > 4) {
         uart_puts("Invalid ADC channel, use 0-4\r\n");
         return;
     }
     uint16_t val = adc_read(ch);
+
     char buf[32];
-    snprintf(buf, sizeof(buf), "ADC[%d] = %d\r\n", ch, val);
+    int pos = 0;
+    const char prefix[] = "ADC[";
+    for (int i = 0; prefix[i] != 0; i++)
+        buf[pos++] = prefix[i];
+
+    pos += my_itoa(buf + pos, ch);
+
+    const char mid[] = "] = ";
+    for (int i = 0; mid[i] != 0; i++)
+        buf[pos++] = mid[i];
+
+    pos += my_itoa(buf + pos, val);
+
+    const char suffix[] = "\r\n";
+    for (int i = 0; suffix[i] != 0; i++)
+        buf[pos++] = suffix[i];
+
+    buf[pos] = 0;
+
     uart_puts(buf);
 }

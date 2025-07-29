@@ -1,3 +1,7 @@
+.syntax unified
+.cpu cortex-m0
+.thumb
+
 .section .text.boot
 .global _start
 
@@ -7,16 +11,27 @@
 .extern _stack_top
 
 _start:
-    ldr sp, =_stack_top
+    /* Set stack pointer */
+    ldr r0, =_stack_top
+    mov sp, r0
 
-    ldr r0, =_sbss
-    ldr r1, =_ebss
+    /* Zero .bss section */
+    ldr r1, =_sbss
+    ldr r2, =_ebss
+    movs r3, #0
+
 zero_bss:
-    cmp r0, r1
-    itt lt
-    strlt r2, [r0], 
-    blt zero_bss
+    cmp r1, r2
+    bcc clear_word
+    b   bss_done
 
+clear_word:
+    str r3, [r1]
+    adds r1, #4
+    b   zero_bss
+
+bss_done:
+    /* Call kernel_main */
     bl kernel_main
 
 hang:
@@ -26,6 +41,6 @@ hang:
 enable_irq:
     cpsie i
     bx lr
-    
+
 .extern SVC_Handler
 .word SVC_Handler

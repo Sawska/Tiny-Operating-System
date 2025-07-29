@@ -60,9 +60,10 @@ set(UNITY_SRC ${UNITY_DIR}/unity.c)
 set(UNITY_INCLUDE ${UNITY_DIR})
 
 
-file(GLOB TEST_SOURCES RELATIVE ${CMAKE_SOURCE_DIR}/tests
-    tests/test_*.c
+file(GLOB TEST_SOURCES
+    ${CMAKE_SOURCE_DIR}/tests/test_*.c
 )
+
 
 add_executable(tests
     ${TEST_SOURCES}

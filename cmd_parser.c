@@ -1,9 +1,10 @@
 #include "cmd_parser.h"
 #include "uart.h"
 #include "syscall.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+
+
+
+
 
 #define CMD_BUFFER_SIZE 128
 
@@ -12,11 +13,25 @@ static uint8_t cmd_pos = 0;
 
 static int tokenize(char* str, char* argv[], int max_args) {
     int argc = 0;
-    char* token = strtok(str, " ");
-    while(token && argc < max_args) {
-        argv[argc++] = token;
-        token = strtok(NULL, " ");
+    char* p = str;
+
+    while (*p && argc < max_args) {
+        
+        while (*p == ' ') p++;
+        if (*p == 0) break;
+
+        argv[argc++] = p;
+
+        
+        while (*p && *p != ' ') p++;
+
+        
+        if (*p) {
+            *p = 0;
+            p++;
+        }
     }
+
     return argc;
 }
 

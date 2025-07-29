@@ -41,13 +41,33 @@ void* simple_malloc(unsigned int size) {
     return user_ptr;
 }
 
+void uint16_to_str(uint16_t num, char* buffer) {
+    int i = 0;
+    if (num == 0) {
+        buffer[i++] = '0';
+    } else {
+        char temp[6];
+        int j = 0;
+        while (num > 0) {
+            temp[j++] = '0' + (num % 10);
+            num /= 10;
+        }
+        while (j > 0) {
+            buffer[i++] = temp[--j];
+        }
+    }
+    buffer[i] = '\0';
+}
+
 void memory_check_leaks(void) {
     uart_puts("Checking for leaks:\n");
     alloc_header_t* curr = alloc_list;
     int count = 0;
     while (curr) {
         uart_puts(" Leaked block: size = ");
-        uart_putint(curr->size);
+        char buf[10];
+            uint16_to_str(curr->size, buf);
+            uart_puts(buf);
         uart_puts(" bytes\n");
         curr = curr->next;
         count++;
@@ -55,6 +75,9 @@ void memory_check_leaks(void) {
     if (count == 0)
         uart_puts(" No leaks found.\n");
 }
+
+
+
 
 void memory_check_corruption(void) {
     uart_puts("Checking for corruption:\n");
@@ -65,7 +88,9 @@ void memory_check_corruption(void) {
         uint16_t* guard = (uint16_t*)((unsigned char*)user_ptr + curr->size);
         if (*guard != GUARD_VALUE) {
             uart_puts(" Corruption detected! Block size = ");
-            uart_putint(curr->size);
+            char buf[10];
+            uint16_to_str(curr->size, buf);
+            uart_puts(buf);
             uart_puts(" bytes\n");
             count++;
         }

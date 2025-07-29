@@ -2,8 +2,111 @@
 #include "uart.h"  
 #include "scheduler.h"
 #include "uart.h"
-#include <string.h>
-#include <stdlib.h>
+
+
+
+static int my_strcmp(const char* s1, const char* s2) {
+    while (*s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return (unsigned char)*s1 - (unsigned char)*s2;
+}
+
+static int my_atoi(const char* str) {
+    int result = 0;
+    int sign = 1;
+
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    }
+
+    while (*str >= '0' && *str <= '9') {
+        result = result * 10 + (*str - '0');
+        str++;
+    }
+
+    return sign * result;
+}
+
+static void my_snprintf_adc(char* buf, size_t bufsize, int ch, int val) {
+
+
+    int pos = 0;
+    const char* prefix = "ADC[";
+    const char* middle = "] = ";
+    const char* suffix = "\r\n";
+
+    for (int i = 0; prefix[i] && pos < (int)(bufsize - 1); i++, pos++) {
+        buf[pos] = prefix[i];
+    }
+
+    char num_buf[12];
+    int num_len = 0;
+
+    int temp = ch;
+    if (temp == 0) {
+        num_buf[num_len++] = '0';
+    } else {
+        int start = num_len;
+        while (temp > 0 && num_len < (int)sizeof(num_buf)) {
+            num_buf[num_len++] = '0' + (temp % 10);
+            temp /= 10;
+        }
+
+        for (int j = 0; j < (num_len - start) / 2; j++) {
+            char t = num_buf[start + j];
+            num_buf[start + j] = num_buf[num_len - 1 - j];
+            num_buf[num_len - 1 - j] = t;
+        }
+    }
+
+    for (int i = 0; i < num_len && pos < (int)(bufsize - 1); i++, pos++) {
+        buf[pos] = num_buf[i];
+    }
+
+
+    for (int i = 0; middle[i] && pos < (int)(bufsize - 1); i++, pos++) {
+        buf[pos] = middle[i];
+    }
+
+
+    num_len = 0;
+    temp = val;
+    int neg = 0;
+    if (temp < 0) {
+        neg = 1;
+        temp = -temp;
+    }
+    if (temp == 0) {
+        num_buf[num_len++] = '0';
+    } else {
+        int start = num_len;
+        while (temp > 0 && num_len < (int)sizeof(num_buf)) {
+            num_buf[num_len++] = '0' + (temp % 10);
+            temp /= 10;
+        }
+
+        for (int j = 0; j < (num_len - start) / 2; j++) {
+            char t = num_buf[start + j];
+            num_buf[start + j] = num_buf[num_len - 1 - j];
+            num_buf[num_len - 1 - j] = t;
+        }
+    }
+    if (neg && pos < (int)(bufsize - 1)) {
+        buf[pos++] = '-';
+    }
+    for (int i = 0; i < num_len && pos < (int)(bufsize - 1); i++, pos++) {
+        buf[pos] = num_buf[i];
+    }
+
+    for (int i = 0; suffix[i] && pos < (int)(bufsize - 1); i++, pos++) {
+        buf[pos] = suffix[i];
+    }
+
+    buf[pos] = '\0';
+}
 
 extern void yield();
 
@@ -47,7 +150,7 @@ static void syscall_adc(int argc, char* argv[]) {
         uart_puts("Usage: adc read <channel>\r\n");
         return;
     }
-    int ch = atoi(argv[2]);
+    int ch = my_atoi(argv[2]);
     if (ch < 0 || ch > 4) {
         uart_puts("Invalid ADC channel, use 0-4\r\n");
         return;
@@ -55,7 +158,7 @@ static void syscall_adc(int argc, char* argv[]) {
 
     uint16_t val = 1234; 
     char buf[32];
-    snprintf(buf, sizeof(buf), "ADC[%d] = %d\r\n", ch, val);
+    my_my_snprintf_adc_adc(buf, sizeof(buf), "ADC[%d] = %d\r\n", ch, val);
     uart_puts(buf);
 }
 
