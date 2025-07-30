@@ -293,6 +293,7 @@ void lcd_spi()  {
     lcd_send_data_spi(0xFF);     
     lcd_write_string("Hello, SPI!");
 }
+void kernel_main(void) __attribute__((noreturn, noinline, used, section(".text.boot"), target("thumb")));
 
 void kernel_main(void) {
 

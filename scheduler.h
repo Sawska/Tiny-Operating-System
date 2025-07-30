@@ -25,5 +25,10 @@ void task_create(void (*entry)(void), int priority, uint32_t caps);
 void scheduler_start();
 void SysTick_Handler();  
 
+void yield(void);
+void scheduler_exit(void);
+
+int task_has_capability(uint32_t cap);
+
 extern Task tasks[MAX_TASKS];
 extern int total_tasks;

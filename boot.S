@@ -3,8 +3,10 @@
 .thumb
 
 .section .text.boot
-.global _start
 
+.thumb_func
+.global _start
+.type _start, %function
 .extern kernel_main
 .extern _sbss
 .extern _ebss
@@ -37,7 +39,9 @@ bss_done:
 hang:
     b hang
 
+.thumb_func
 .global enable_irq
+.type enable_irq, %function
 enable_irq:
     cpsie i
     bx lr

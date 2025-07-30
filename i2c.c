@@ -1,5 +1,6 @@
 #include "i2c.h"
 #include "memory.h"
+#include "gpio.h"
 
 #define I2C0_BASE 0x40044000
 #define I2C0_IC_CON (*(volatile uint32_t*)(I2C0_BASE + 0x00))
@@ -15,9 +16,6 @@
 #define GPIO_BASE 0x40014000
 #define GPIO_CTRL(gpio) (*(volatile uint32_t*)(GPIO_BASE + 0x04 + (gpio) * 8))
 
-static inline void delay_cycles(int cycles) {
-    for (volatile int i = 0; i < cycles; ++i) asm volatile("nop");
-}
 
 void i2c_init() {
     

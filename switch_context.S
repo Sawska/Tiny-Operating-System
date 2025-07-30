@@ -1,13 +1,16 @@
 .syntax unified
 .thumb
-.global switch_context
 
+.thumb_func
+.global switch_context
 switch_context:
     mrs r2, psp
-    stmdb r2!, {r4-r11}
-    str r2, [r0]      
-
-    ldr r2, [r1]      
-    ldmia r2!, {r4-r11}
-    msr psp, r2
+    push {r4-r7}
+    mov r3, sp
+    str r3, [r0]
+    ldr r3, [r1]
+    mov sp, r3
+    pop {r4-r7}
+    mov r3, sp
+    msr psp, r3
     bx lr

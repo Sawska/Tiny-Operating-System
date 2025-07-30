@@ -1,5 +1,6 @@
 #include "scheduler.h"
 #include "memory.h"
+#include <uart.h>
 
 Task tasks[MAX_TASKS];
 int current_task = -1;
@@ -86,3 +87,20 @@ int task_has_capability(uint32_t cap) {
     if (current_task < 0 || current_task >= total_tasks) return 0;
     return (tasks[current_task].capabilities & cap) != 0;
 }
+
+void yield(void) {
+ 
+    *(volatile uint32_t*)0xE000ED04 = (1UL << 28);
+}
+
+void scheduler_exit(void) {
+    if (current_task >= 0 && current_task < total_tasks) {
+        tasks[current_task].active = 0;
+        uart_puts("Task exited\r\n");
+    }
+
+ 
+    yield();
+}
+
+

@@ -3,6 +3,7 @@
 #include "scheduler.h"
 #include "uart.h"
 
+typedef unsigned int size_t; 
 
 
 static int my_strcmp(const char* s1, const char* s2) {
@@ -134,10 +135,10 @@ static void syscall_led(int argc, char* argv[]) {
         uart_puts("Usage: led on|off\r\n");
         return;
     }
-    if (strcmp(argv[1], "on") == 0) {
+    if (my_strcmp(argv[1], "on") == 0) {
         uart_puts("LED turned ON\r\n");
     }
-    else if (strcmp(argv[1], "off") == 0) {
+    else if (my_strcmp(argv[1], "off") == 0) {
         uart_puts("LED turned OFF\r\n");
     }
     else {
@@ -146,7 +147,7 @@ static void syscall_led(int argc, char* argv[]) {
 }
 
 static void syscall_adc(int argc, char* argv[]) {
-    if (argc < 3 || strcmp(argv[1], "read") != 0) {
+    if (argc < 3 || my_strcmp(argv[1], "read") != 0) {
         uart_puts("Usage: adc read <channel>\r\n");
         return;
     }
@@ -158,18 +159,18 @@ static void syscall_adc(int argc, char* argv[]) {
 
     uint16_t val = 1234; 
     char buf[32];
-    my_my_snprintf_adc_adc(buf, sizeof(buf), "ADC[%d] = %d\r\n", ch, val);
+    my_snprintf_adc(buf, sizeof(buf),ch, val);
     uart_puts(buf);
 }
 
 void syscall_handle_command(int argc, char* argv[]) {
-    if (strcmp(argv[0], "led") == 0) {
+    if (my_strcmp(argv[0], "led") == 0) {
         syscall_led(argc, argv);
     }
-    else if (strcmp(argv[0], "adc") == 0) {
+    else if (my_strcmp(argv[0], "adc") == 0) {
         syscall_adc(argc, argv);
     }
-    else if (strcmp(argv[0], "help") == 0) {
+    else if (my_strcmp(argv[0], "help") == 0) {
         uart_puts("Available commands:\r\n");
         uart_puts("  led on|off\r\n");
         uart_puts("  adc read <channel>\r\n");
@@ -191,3 +192,5 @@ void syscall_gpio_set(int pin, int value) {
     gpio_set(pin, value);
     uart_puts("GPIO set\r\n");
 }
+
+
