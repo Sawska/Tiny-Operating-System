@@ -72,8 +72,9 @@ target_link_libraries(kernel.elf PRIVATE gcc)
 
 add_custom_command(TARGET kernel.elf POST_BUILD
 COMMAND ${CMAKE_OBJCOPY} -O binary kernel.elf kernel.bin
-COMMAND ${CMAKE_SOURCE_DIR}/pico-sdk/tools/elf2uf2/elf2uf2 kernel.elf kernel.uf2
-COMMENT "Generating kernel.bin and kernel.uf2"
+# COMMAND ${CMAKE_SOURCE_DIR}/pico-sdk/tools/elf2uf2/elf2uf2 kernel.elf kernel.uf2
+# COMMENT "Generating kernel.bin and kernel.uf2"
+COMMENT "Generating kernel.bin"
 )
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "kernel.bin;kernel.uf2")
