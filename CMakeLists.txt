@@ -89,6 +89,9 @@ set(UNITY_DIR ${CMAKE_SOURCE_DIR}/Unity/src)
 set(UNITY_SRC ${UNITY_DIR}/unity.c)
 set(UNITY_INCLUDE ${UNITY_DIR})
 
+message(STATUS "Unity source path: ${UNITY_SRC}")
+
+
 file(GLOB TEST_SOURCES
 ${CMAKE_SOURCE_DIR}/tests/test_*.c
 )
