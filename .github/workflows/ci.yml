@@ -15,7 +15,7 @@ jobs:
       - name: Set up ARM GCC
         uses: fiam/arm-none-eabi-gcc@v1
         with:
-          release: 'latest'
+          release: '10-2020-q4'
 
       - name: Build with make
         run: make
