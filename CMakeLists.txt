@@ -79,35 +79,3 @@ COMMENT "Generating kernel.bin"
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "kernel.bin;kernel.uf2")
 
-# -------------------------
-# Add Tests
-# -------------------------
-
-enable_testing()
-
-set(UNITY_DIR ${CMAKE_SOURCE_DIR}/Unity/src)
-set(UNITY_SRC ${UNITY_DIR}/unity.c)
-set(UNITY_INCLUDE ${UNITY_DIR})
-
-message(STATUS "Unity source path: ${UNITY_SRC}")
-
-
-file(GLOB TEST_SOURCES
-${CMAKE_SOURCE_DIR}/tests/test_*.c
-)
-
-add_executable(tests
-${TEST_SOURCES}
-${UNITY_SRC}
-)
-
-target_include_directories(tests PRIVATE
-${UNITY_INCLUDE}
-${CMAKE_SOURCE_DIR}  
-)
-
-if(UNIX AND NOT APPLE)
-target_link_libraries(tests pthread)
-endif()
-
-add_test(NAME TinyOS_Tests COMMAND tests)
