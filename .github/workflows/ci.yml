@@ -17,5 +17,8 @@ jobs:
         with:
           release: '10-2020-q4'
 
-      - name: Build with make
-        run: make
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=arm-toolchain.cmake
+
+      - name: Build
+        run: cmake --build build
