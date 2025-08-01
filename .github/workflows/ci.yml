@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up ARM GCC
         uses: fiam/arm-none-eabi-gcc@v1
@@ -18,7 +20,7 @@ jobs:
           release: '10-2020-q4'
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=arm-toolchain.cmake
+        run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=arm-toolchain.cmake -DPICO_SDK_PATH=pico-sdk
 
       - name: Build
         run: cmake --build build
