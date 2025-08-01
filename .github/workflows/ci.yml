@@ -10,10 +10,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up ARM GCC
-      uses: fiam/arm-none-eabi-gcc@v1
+      - name: Set up ARM GCC
+        uses: fiam/arm-none-eabi-gcc@v1
+        with:
+          release: 'latest'
 
-    - name: Build with make
-      run: make
+      - name: Build with make
+        run: make
