@@ -11,7 +11,7 @@ static uint8_t slip_buf[SLIP_BUF_SIZE];
 static uint16_t slip_index = 0;
 
 void slip_send(const uint8_t* data, uint16_t len) {
-    uart_putc(SLIP_END); // Start packet
+    uart_putc(SLIP_END); 
 
     for (uint16_t i = 0; i < len; ++i) {
         switch (data[i]) {

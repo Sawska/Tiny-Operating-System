@@ -67,10 +67,10 @@ int vsnprintf(char* buffer, size_t buffer_size, const char* fmt, va_list args) {
             continue;
         }
 
-        fmt++;  // Skip '%'
+        fmt++;  
 
         int long_flag = 0;
-        if (*fmt == 'l') {  // support %ld or %lu, ignore for simplicity
+        if (*fmt == 'l') { 
             long_flag = 1;
             fmt++;
         }
@@ -115,7 +115,7 @@ int vsnprintf(char* buffer, size_t buffer_size, const char* fmt, va_list args) {
                 break;
             }
             default:
-                // Unsupported specifier, print it literally
+                
                 if (pos < buffer_size)
                     buffer[pos++] = '%';
                 if (pos < buffer_size)

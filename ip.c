@@ -46,7 +46,7 @@ void ip_send_icmp_echo_reply(const uint8_t* request_packet, uint16_t len) {
     const ip_header_t* req_ip = (const ip_header_t*)request_packet;
     uint16_t ip_header_len = (req_ip->version_ihl & 0x0F) * 4;
 
-    uint16_t total_len = (req_ip->total_length >> 8) | ((req_ip->total_length & 0xFF) << 8); // endian fix
+    uint16_t total_len = (req_ip->total_length >> 8) | ((req_ip->total_length & 0xFF) << 8); 
     if (len < total_len) return;
 
     static uint8_t reply_buf[1500];

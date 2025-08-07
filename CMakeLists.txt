@@ -71,11 +71,11 @@ $<$<COMPILE_LANGUAGE:ASM>:-mcpu=cortex-m0 -mthumb -ffreestanding>
 target_link_libraries(kernel.elf PRIVATE gcc)
 
 add_custom_command(TARGET kernel.elf POST_BUILD
-COMMAND ${CMAKE_OBJCOPY} -O binary kernel.elf kernel.bin
-# COMMAND ${CMAKE_SOURCE_DIR}/pico-sdk/tools/elf2uf2/elf2uf2 kernel.elf kernel.uf2
-# COMMENT "Generating kernel.bin and kernel.uf2"
-COMMENT "Generating kernel.bin"
+  COMMAND ${CMAKE_OBJCOPY} -O binary kernel.elf kernel.bin
+  COMMAND /opt/homebrew/bin/elf2uf2-rs kernel.elf kernel.uf2
+  COMMENT "Generating kernel.bin and kernel.uf2"
 )
+
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "kernel.bin;kernel.uf2")
 

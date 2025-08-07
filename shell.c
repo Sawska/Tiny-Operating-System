@@ -20,7 +20,7 @@ typedef struct {
     const char* help;
 } command_t;
 
-// Forward declarations
+
 static void cmd_help(int argc, char* argv[]);
 static void cmd_led(int argc, char* argv[]);
 static void cmd_adc(int argc, char* argv[]);
