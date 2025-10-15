@@ -6,8 +6,11 @@ A minimal hobby operating system built **from scratch** — including a custom b
 
 ## 🎯 Project Goal
 
-The aim of this project is to **learn and explore low-level systems programming** by building a small but functional OS from the ground up.
-It covers **boot process**, **kernel design**, **memory management**, and **multitasking** — all while working directly with microcontroller hardware.
+Problem: To gain a deep understanding of low-level computer architecture and operating system fundamentals by building a functional core OS.
+
+Solution: Developed a simple hobby operating system from scratch, including a custom bootloader, a basic kernel, and task scheduling. The project also aims to run this system on a minimal hardware platform, such as a microcontroller.
+
+Result: A working, minimal operating system demonstrating core OS concepts and providing practical experience in hardware-level programming, memory management, and process control.
 
 ---
 
