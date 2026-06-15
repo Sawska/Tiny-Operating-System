@@ -109,9 +109,20 @@ else()
     )
     target_link_libraries(kernel.elf PRIVATE gcc)
 
+    # Always produce the raw binary. The .uf2 (for drag-and-drop flashing) needs
+    # elf2uf2-rs; if it isn't on PATH (e.g. CI), skip it instead of failing.
     add_custom_command(TARGET kernel.elf POST_BUILD
         COMMAND ${CMAKE_OBJCOPY} -O binary kernel.elf kernel.bin
-        COMMAND /opt/homebrew/bin/elf2uf2-rs kernel.elf kernel.uf2
-        COMMENT "Generating kernel.bin and kernel.uf2")
-    set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "kernel.bin;kernel.uf2")
+        COMMENT "Generating kernel.bin")
+
+    find_program(ELF2UF2 elf2uf2-rs)
+    if(ELF2UF2)
+        add_custom_command(TARGET kernel.elf POST_BUILD
+            COMMAND ${ELF2UF2} kernel.elf kernel.uf2
+            COMMENT "Generating kernel.uf2")
+        set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "kernel.bin;kernel.uf2")
+    else()
+        message(STATUS "elf2uf2-rs not found; skipping kernel.uf2 (kernel.bin still produced)")
+        set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "kernel.bin")
+    endif()
 endif()
