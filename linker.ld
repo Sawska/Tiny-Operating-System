@@ -6,6 +6,17 @@ MEMORY {
 }
 
 SECTIONS {
+  /* RP2040 second-stage bootloader: exactly 256 bytes at the very start of
+   * flash (0x10000000), ending in the CRC32 the boot ROM checks. */
+  .boot2 : {
+    __boot2_start = .;
+    KEEP(*(.boot2))
+    __boot2_end = .;
+  } > FLASH
+  ASSERT(__boot2_end - __boot2_start == 256,
+         "boot2 must be exactly 256 bytes (run tools/build_boot2.sh)")
+
+  /* Application vector table lands at 0x10000100; boot2 points VTOR here. */
   .vectors : {
     KEEP(*(.vectors))
   } > FLASH
@@ -17,6 +28,7 @@ SECTIONS {
     *(.rodata*)
   } > FLASH
 
+  _sidata = LOADADDR(.text) + SIZEOF(.text);
   .data : AT (LOADADDR(.text) + SIZEOF(.text)) {
     _sdata = .;
     *(.data*)

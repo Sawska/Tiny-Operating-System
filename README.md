@@ -71,6 +71,67 @@ Tiny-Operating-System/
 
 ## ⚙️ Building & Running
 
+### 🧪 Run it in QEMU (no hardware needed)
+
+The easiest way to see Tiny-OS actually boot and multitask is the emulated
+`lm3s6965evb` (Cortex-M3) target. Install `arm-none-eabi-gcc`, `cmake`, and
+`qemu-system-arm`, then:
+
+```bash
+./run.sh
+```
+
+This builds the QEMU image and boots it, printing to the serial console. You
+should see the bump allocator hand out RAM and four tasks (heartbeat, producer,
+consumer, IPC sink) being preemptively time-sliced by the round-robin
+scheduler, with the mailbox and IPC queue carrying values between them:
+
+```
+=== Tiny-OS booting on QEMU (lm3s6965evb / Cortex-M3) ===
+[INFO] kernel initialised
+[mem] simple_malloc(64)  -> 0x20004008
+=== starting scheduler with 4 tasks ===
+[heartbeat] tick 0
+[producer] sent  value 0
+[consumer] recv  value 0
+[sink]     logged item 0
+...
+```
+
+Exit QEMU with `Ctrl-A` then `X`. Under the hood this is
+`cmake -B build-qemu -DQEMU=ON -DCMAKE_TOOLCHAIN_FILE=arm-toolchain.cmake`
+followed by `qemu-system-arm -M lm3s6965evb -nographic -kernel build-qemu/kernel.elf`.
+
+### 🔌 Build for a real Raspberry Pi Pico
+
+The default build (`QEMU=OFF`) targets the RP2040 and produces a flashable
+`kernel.uf2`. It embeds a proper RP2040 second-stage bootloader (`boot2.S`,
+the universal "03h" variant) at the start of flash — padded to 256 bytes with
+the CRC32 the boot ROM checks — so the chip actually boots into the kernel.
+
+```bash
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=arm-toolchain.cmake
+cmake --build build
+# Hold BOOTSEL, plug in the Pico, then:
+cp build/kernel.uf2 /Volumes/RPI-RP2/
+```
+
+What you should see: the **onboard LED (GPIO25) blinking**. That confirms the
+whole chain works on real silicon — boot2 → vector table → `kernel_main` → the
+preemptive round-robin scheduler context-switching between two tasks. Wire an
+LED to GPIO16 to watch the second task blink at its own independent rate.
+
+> **Tested in QEMU, not on physical hardware** (none was available while this
+> was written). The image layout and boot2 checksum are verified correct, and
+> the scheduler/context-switch logic is the same algorithm proven under QEMU,
+> ported to Cortex-M0+. UART serial output on hardware is intentionally left out
+> of this demo because it needs PLL/`clk_peri` clock configuration; the LED demo
+> avoids that dependency. If you have a Pico to test on, I can add clock + UART
+> setup next.
+
+If you edit `boot2.S`, regenerate the checksummed blob with
+`./tools/build_boot2.sh`.
+
 ### 1️⃣ Install Dependencies
 
 * [ARM GCC Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)

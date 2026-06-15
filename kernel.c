@@ -293,40 +293,42 @@ void lcd_spi()  {
     lcd_send_data_spi(0xFF);     
     lcd_write_string("Hello, SPI!");
 }
+/* ---- Raspberry Pi Pico hardware demo ----
+ *
+ * Two independent tasks blink LEDs at different rates. This deliberately avoids
+ * UART (which needs PLL/clk_peri setup, not configured here) and the sensor
+ * tasks above (which busy-wait on peripherals that may be absent). The onboard
+ * LED on GPIO25 blinking proves boot2, the kernel, and the preemptive
+ * round-robin scheduler are all working on real silicon. Wire an optional LED
+ * to GPIO16 to see the second task's independent blink rate. */
+void blink_onboard_task(void) {
+    int led = 25;                 /* Pico onboard LED */
+    gpio_set_output(led);
+    while (1) {
+        gpio_toggle(led);
+        for (volatile int i = 0; i < 400000; ++i);
+    }
+}
+
+void blink_external_task(void) {
+    int led = 16;                 /* optional external LED */
+    gpio_set_output(led);
+    while (1) {
+        gpio_toggle(led);
+        for (volatile int i = 0; i < 120000; ++i);
+    }
+}
+
 void kernel_main(void) __attribute__((noreturn, noinline, used, section(".text.boot"), target("thumb")));
 
 void kernel_main(void) {
-
-    log_debug("This is a debug message");
-    log_info("Kernel booted successfully");
-    log_warn("Low memory warning");
-    log_error("Failed to initialize driver");
-    gpio_init(25);
-    uart_init();
-    mailbox_init(&box);
     scheduler_init();
 
-    gpio_set_input(15); 
-    gpio_enable_irq(15, 0, 1);
+    task_create(blink_onboard_task, 1, CAP_GPIO);
+    task_create(blink_external_task, 2, CAP_GPIO);
 
-    enable_irq();  
-
-
-    task_create(task1,1,CAP_GPIO);
-    task_create(task2,2,CAP_GPIO);
-    task_create(dht11_task,3,CAP_GPIO);
-    task_create(button_task,4,CAP_GPIO);
-    task_create(hc_sr04_task,5,CAP_GPIO);
-    task_create(led_task,6,CAP_GPIO);
-    task_create(buzzer_task,7,CAP_GPIO);
-    task_create(servo_task,8,CAP_GPIO);
-    task_create(motor_task,9,CAP_GPIO);
-    task_create(hw_servo_task_hardware_pwm,10,CAP_GPIO);
-    task_create(hw_motor_task_hardware_pwm,11,CAP_GPIO);
-    task_create(lcd_example,12,CAP_GPIO);
-    task_create(lcd_spi,13,CAP_GPIO);
-    task_create(sensor_task,14,CAP_GPIO);
-    task_create(logger_task,15,CAP_GPIO);
     scheduler_start();
+
+    while (1) { }  /* not reached */
 }
 

@@ -10,6 +10,9 @@
 .extern kernel_main
 .extern _sbss
 .extern _ebss
+.extern _sdata
+.extern _edata
+.extern _sidata
 .extern _stack_top
 
 _start:
@@ -17,6 +20,23 @@ _start:
     ldr r0, =_stack_top
     mov sp, r0
 
+    /* Copy .data from its load address in FLASH to its run address in RAM.
+     * Without this, initialized globals (e.g. heap_ptr, current_task) are
+     * never set and the kernel reads garbage. */
+    ldr r0, =_sidata        /* source (FLASH) */
+    ldr r1, =_sdata         /* dest start (RAM) */
+    ldr r2, =_edata         /* dest end   (RAM) */
+
+copy_data:
+    cmp r1, r2
+    bcs data_done
+    ldr r3, [r0]
+    str r3, [r1]
+    adds r0, #4
+    adds r1, #4
+    b   copy_data
+
+data_done:
     /* Zero .bss section */
     ldr r1, =_sbss
     ldr r2, =_ebss
@@ -45,6 +65,3 @@ hang:
 enable_irq:
     cpsie i
     bx lr
-
-.extern SVC_Handler
-.word SVC_Handler

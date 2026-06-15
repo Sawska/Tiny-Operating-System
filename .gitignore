@@ -3,6 +3,8 @@
 Unity
 
 build
+build-qemu
+build-*
 
 pico-sdk/
 
